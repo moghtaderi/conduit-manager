@@ -71,7 +71,7 @@ conduit help         # Show help message
 | Option | Default | Range | Description |
 |--------|---------|-------|-------------|
 | `max-clients` | 200 | 1-1000 | Maximum concurrent proxy clients |
-| `bandwidth` | 5 | 1-40 | Bandwidth limit per peer (Mbps) |
+| `bandwidth` | 5 | 1-40, -1 | Bandwidth limit per peer (Mbps). Use -1 for unlimited. |
 
 **Recommended values based on server CPU:**
 
@@ -178,7 +178,7 @@ conduit help         # راهنما
 | گزینه | پیش‌فرض | محدوده | توضیحات |
 |-------|---------|--------|---------|
 | `max-clients` | 200 | 1-1000 | حداکثر کاربران همزمان |
-| `bandwidth` | 5 | 1-40 | محدودیت پهنای باند (Mbps) |
+| `bandwidth` | 5 | 1-40, -1 | محدودیت پهنای باند (Mbps). برای نامحدود -1 وارد کنید. |
 
 **مقادیر پیشنهادی بر اساس پردازنده (CPU):**
 

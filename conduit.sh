@@ -685,14 +685,20 @@ show_dashboard() {
     clear
 
     while [ $stop_dashboard -eq 0 ]; do
-        # Move cursor to top-left (0,0) instead of just home escape code
-        tput cup 0 0 2>/dev/null || echo -ne "\033[H"
+        # Move cursor to top-left (0,0) and clear screen
+        # Using both tput and ANSI codes for maximum compatibility
+        if ! tput cup 0 0 2>/dev/null; then
+            printf "\033[H"
+        fi
+        
+        # Clear from cursor to end of screen (Erase Down)
+        if ! tput ed 2>/dev/null; then
+            printf "\033[J"
+        fi
         
         print_live_stats_header
         
         show_status "live"
-        
-        # System Resource Usage is now part of show_status
         
         # Show Node ID in its own section
         local node_id=$(get_node_id)
@@ -704,11 +710,9 @@ show_dashboard() {
 
         echo -e "${BOLD}Refreshes every 5 seconds. Press any key to return to menu...${NC}\033[K"
         
-        # Clear any leftover content below (Erase Down)
-        tput ed 2>/dev/null || true
-        
         # Wait 4 seconds for keypress (compensating for processing time)
-        if read -t 4 -n 1; then
+        # Redirect from /dev/tty ensures it works when the script is piped
+        if read -t 4 -n 1 -s <> /dev/tty 2>/dev/null; then
             stop_dashboard=1
         fi
     done
@@ -802,7 +806,8 @@ show_live_stats() {
     local cmd_pid=$!
     
     # Wait for any key press
-    read -n 1 -s -r
+    # Redirect from /dev/tty ensures it works when the script is piped
+    read -n 1 -s -r <> /dev/tty 2>/dev/null || true
     
     # Kill the background process
     kill $cmd_pid 2>/dev/null
