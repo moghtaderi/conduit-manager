@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(bash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo fork:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(ls:*)",
+      "Bash(git remote add:*)",
+      "Bash(git fetch:*)",
+      "Bash(CYAN='\\\\033[0;36m')",
+      "Bash(NC='\\\\033[0m')",
+      "Bash(duration_str=\"00:20\")",
+      "Bash(header_text=\"LIVE PEER TRAFFIC BY COUNTRY   Session: $duration_str   [LIVE]\")",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(git reset:*)",
+      "Bash(gh pr view:*)",
+      "Bash(git rebase:*)",
+      "Bash(docker pull:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(TOKEN=\"djE6c3NtaXJyL2NvbmR1aXQvY29uZHVpdDoxNzY5NzA3MzE1MDM1MTA5ODM4\")",
+      "Bash(TOKEN=\"djE6c3NtaXJyL2NvbmR1aXQvY29uZHVpdDoxNzY5NzA3MzE1MDM1MTA5ODM4\" curl -sI \"https://ghcr.io/v2/ssmirr/conduit/conduit/manifests/2fd31d4\"  -H \"Authorization: Bearer $TOKEN\"  -H \"Accept: application/vnd.oci.image.index.v1+json\")",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)",
+      "Bash(chmod:*)",
+      "Bash(./build.sh)",
+      "Bash(git revert:*)"
+    ]
+  }
+}
