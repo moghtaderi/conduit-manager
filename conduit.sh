@@ -293,6 +293,7 @@ check_dependencies() {
     fi
 }
 
+
 get_ram_mb() {
     local ram=""
     if command -v free &>/dev/null; then
@@ -486,6 +487,7 @@ prompt_settings() {
 # Installation Functions
 #═══════════════════════════════════════════════════════════════════════
 
+
 install_docker() {
     if command -v docker &>/dev/null; then
         log_success "Docker is already installed"
@@ -546,6 +548,7 @@ install_docker() {
 
 
 # Check for backup keys and offer restore during install
+
 check_and_offer_backup_restore() {
     if [ ! -d "$BACKUP_DIR" ]; then
         return 0
@@ -625,7 +628,7 @@ check_and_offer_backup_restore() {
     done
 }
 
-# Verify Docker image digest matches expected value (security check)
+
 verify_image_digest() {
     local expected="$1"
     local image="$2"
@@ -650,6 +653,7 @@ verify_image_digest() {
     log_success "Image digest verified: ${actual:0:20}..."
     return 0
 }
+
 
 run_conduit() {
     local count=${CONTAINER_COUNT:-1}
@@ -708,6 +712,7 @@ run_conduit() {
         exit 1
     fi
 }
+
 
 save_settings_install() {
     mkdir -p "$INSTALL_DIR"
@@ -833,8 +838,14 @@ EOF
 # Management Script
 #═══════════════════════════════════════════════════════════════════════
 
+
+
+#═══════════════════════════════════════════════════════════════════════
+# Management Script
+#═══════════════════════════════════════════════════════════════════════
+
 create_management_script() {
-    # Generate the management script. 
+    # Generate the management script.
     cat > "$INSTALL_DIR/conduit" << 'MANAGEMENT'
 #!/bin/bash
 #
@@ -4191,7 +4202,6 @@ update_conduit() {
         fi
     done
 }
-
 case "${1:-menu}" in
     status)   show_status ;;
     stats)    show_live_stats ;;
@@ -4216,12 +4226,12 @@ MANAGEMENT
 
     # Patch the INSTALL_DIR in the generated script
     sed -i "s#REPLACE_ME_INSTALL_DIR#$INSTALL_DIR#g" "$INSTALL_DIR/conduit"
-    
+
     chmod +x "$INSTALL_DIR/conduit"
     # Force create symlink
     rm -f /usr/local/bin/conduit 2>/dev/null || true
     ln -s "$INSTALL_DIR/conduit" /usr/local/bin/conduit
-    
+
     log_success "Management script installed: conduit"
 }
 

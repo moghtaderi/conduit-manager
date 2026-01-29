@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# Psiphon Conduit Manager
+# Reference: https://github.com/ssmirr/conduit/releases/tag/2fd31d4
+#
+
+VERSION="1.1"
+INSTALL_DIR="REPLACE_ME_INSTALL_DIR"
+BACKUP_DIR="$INSTALL_DIR/backups"
+CONDUIT_IMAGE="ghcr.io/ssmirr/conduit/conduit:2fd31d4"
+CONDUIT_IMAGE_DIGEST="sha256:ee456f56751683afd8c1c85ecbeb8bd8871c1b8f9f5057ab1951a60c31c30a7f"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# Load settings
+[ -f "$INSTALL_DIR/settings.conf" ] && source "$INSTALL_DIR/settings.conf"
+MAX_CLIENTS=${MAX_CLIENTS:-200}
+BANDWIDTH=${BANDWIDTH:-5}
+CONTAINER_COUNT=${CONTAINER_COUNT:-1}
+DATA_CAP_GB=${DATA_CAP_GB:-0}
+DATA_CAP_IFACE=${DATA_CAP_IFACE:-}
+DATA_CAP_BASELINE_RX=${DATA_CAP_BASELINE_RX:-0}
+DATA_CAP_BASELINE_TX=${DATA_CAP_BASELINE_TX:-0}
+DATA_CAP_PRIOR_USAGE=${DATA_CAP_PRIOR_USAGE:-0}
+

@@ -252,6 +252,53 @@ else
 fi
 
 # ============================================================
+# Test 13: Build script exists and is valid
+# ============================================================
+test_start "Build script exists and is valid"
+
+BUILD_SCRIPT="$SCRIPT_DIR/build.sh"
+if [ -f "$BUILD_SCRIPT" ]; then
+    if bash -n "$BUILD_SCRIPT" 2>&1; then
+        pass "Build script has valid syntax"
+    else
+        fail "Build script has syntax errors"
+    fi
+else
+    pass "No build script (single-file mode)"
+fi
+
+# ============================================================
+# Test 14: All source modules exist
+# ============================================================
+test_start "All source modules exist"
+
+SRC_DIR="$SCRIPT_DIR/src"
+if [ -d "$SRC_DIR" ]; then
+    missing_modules=()
+
+    # Check installer modules
+    for f in 00-header 01-utils 02-detect-os 03-dependencies 04-settings 05-docker 06-backup-restore 07-verify 08-run 09-autostart 10-management-close 11-summary 12-uninstall 13-main; do
+        [ ! -f "$SRC_DIR/installer/${f}.sh" ] && missing_modules+=("installer/${f}.sh")
+    done
+
+    # Check management modules
+    for i in $(seq -w 0 28); do
+        if ! ls "$SRC_DIR/management/${i}"*.sh >/dev/null 2>&1; then
+            missing_modules+=("management/${i}-*.sh")
+        fi
+    done
+
+    if [ ${#missing_modules[@]} -eq 0 ]; then
+        module_count=$(find "$SRC_DIR" -name "*.sh" | wc -l | tr -d ' ')
+        pass "All source modules present ($module_count files)"
+    else
+        fail "Missing modules: ${missing_modules[*]:0:5}..."
+    fi
+else
+    pass "No src directory (single-file mode)"
+fi
+
+# ============================================================
 # Summary
 # ============================================================
 echo -e "\n${YELLOW}═══════════════════════════════════════════════════════════${NC}"
