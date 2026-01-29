@@ -3414,7 +3414,7 @@ show_settings_menu() {
 
         read -p "  Enter choice: " choice < /dev/tty || { return; }
 
-        case $choice in
+        case "$choice" in
             1)
                 change_settings
                 redraw=true
@@ -3542,7 +3542,7 @@ show_menu() {
 
         read -p "  Enter choice: " choice < /dev/tty || { echo "Input error. Exiting."; exit 1; }
 
-        case $choice in
+        case "$choice" in
             1)
                 show_dashboard
                 redraw=true
@@ -4401,7 +4401,7 @@ main() {
         echo ""
         read -p "  Enter choice: " choice < /dev/tty || true
 
-        case $choice in
+        case "$choice" in
             1)
                 echo -e "${CYAN}Updating management script and opening menu...${NC}"
                 create_management_script
