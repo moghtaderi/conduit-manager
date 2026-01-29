@@ -4021,8 +4021,8 @@ backup_key() {
 
     echo -e "${GREEN}✓ Backup created successfully${NC}"
     echo ""
-    echo "  Backup file: ${CYAN}${backup_file}${NC}"
-    echo "  Node ID:     ${CYAN}${node_id}${NC}"
+    echo -e "  Backup file: ${CYAN}${backup_file}${NC}"
+    echo -e "  Node ID:     ${CYAN}${node_id}${NC}"
     echo ""
     echo -e "${YELLOW}Important:${NC} Store this backup securely. It contains your node's"
     echo "private key which identifies your node on the Psiphon network."
@@ -4149,7 +4149,7 @@ restore_key() {
 
     echo ""
     echo -e "${GREEN}✓ Node key restored successfully${NC}"
-    echo "  Node ID: ${CYAN}${node_id}${NC}"
+    echo -e "  Node ID: ${CYAN}${node_id}${NC}"
 }
 
 update_conduit() {
