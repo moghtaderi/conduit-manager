@@ -645,6 +645,8 @@ run_conduit() {
         docker run -d \
             --name "$cname" \
             --restart unless-stopped \
+            --log-opt max-size=15m \
+            --log-opt max-file=3 \
             -v "${vname}:/home/conduit/data" \
             --network host \
             "$CONDUIT_IMAGE" \
@@ -929,6 +931,8 @@ run_conduit_container() {
     docker run -d \
         --name "$name" \
         --restart unless-stopped \
+        --log-opt max-size=15m \
+        --log-opt max-file=3 \
         -v "${vol}:/home/conduit/data" \
         --network host \
         "$CONDUIT_IMAGE" \
