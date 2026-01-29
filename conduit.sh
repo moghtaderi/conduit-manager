@@ -4133,9 +4133,14 @@ update_conduit() {
     echo "Current image: ${CONDUIT_IMAGE}"
     echo ""
 
-    # Check for updates by pulling
+    # Check for updates by pulling and capture output
     echo "Checking for updates..."
-    if ! docker pull "$CONDUIT_IMAGE" 2>/dev/null; then
+    local pull_output
+    pull_output=$(docker pull "$CONDUIT_IMAGE" 2>&1)
+    local pull_status=$?
+    echo "$pull_output"
+
+    if [ $pull_status -ne 0 ]; then
         echo -e "${RED}Failed to check for updates. Check your internet connection.${NC}"
         return 1
     fi
@@ -4143,6 +4148,13 @@ update_conduit() {
     # Verify image integrity
     if ! verify_image_digest "$CONDUIT_IMAGE_DIGEST" "$CONDUIT_IMAGE"; then
         return 1
+    fi
+
+    # Check if image was actually updated
+    if echo "$pull_output" | grep -q "Status: Image is up to date"; then
+        echo ""
+        echo -e "${GREEN}Already running the latest version. No update needed.${NC}"
+        return 0
     fi
 
     echo ""
