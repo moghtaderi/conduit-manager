@@ -21,13 +21,13 @@ A powerful management tool for deploying and managing Psiphon Conduit nodes on L
 ## Quick Install
 
 ```bash
-curl -sL https://raw.githubusercontent.com/SamNet-dev/conduit-manager/main/conduit.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/moghtaderi/conduit-manager/main/conduit.sh | sudo bash
 ```
 
 Or download and run manually:
 
 ```bash
-wget https://raw.githubusercontent.com/SamNet-dev/conduit-manager/main/conduit.sh
+wget https://raw.githubusercontent.com/moghtaderi/conduit-manager/main/conduit.sh
 sudo bash conduit.sh
 ```
 
@@ -206,6 +206,8 @@ Conduit node operators can earn OAT tokens for contributing to the Psiphon netwo
 
 ## Security
 
+- **Image Verification**: Docker images are verified with SHA256 digest before running (supply chain protection)
+- **Pinned Versions**: Uses specific image tags instead of `:latest` to prevent unexpected changes
 - **Secure Backups**: Node identity keys are stored with restricted permissions (600)
 - **No Telemetry**: The manager collects no data and sends nothing externally
 - **Local Tracking Only**: Traffic stats are stored locally and never transmitted
@@ -223,13 +225,13 @@ Conduit node operators can earn OAT tokens for contributing to the Psiphon netwo
 دستور زیر را در ترمینال سرور اجرا کنید:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/SamNet-dev/conduit-manager/main/conduit.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/moghtaderi/conduit-manager/main/conduit.sh | sudo bash
 ```
 
 یا دانلود و اجرای دستی:
 
 ```bash
-wget https://raw.githubusercontent.com/SamNet-dev/conduit-manager/main/conduit.sh
+wget https://raw.githubusercontent.com/moghtaderi/conduit-manager/main/conduit.sh
 sudo bash conduit.sh
 ```
 
@@ -378,6 +380,8 @@ conduit help         # راهنما
 
 ## امنیت
 
+- **تأیید ایمیج**: ایمیج‌های داکر قبل از اجرا با هش SHA256 تأیید می‌شوند (محافظت زنجیره تأمین)
+- **نسخه‌های ثابت**: از تگ‌های مشخص به جای `:latest` استفاده می‌شود
 - **پشتیبان‌گیری امن**: کلیدهای هویت نود با دسترسی محدود (600) ذخیره می‌شوند
 - **بدون تلمتری**: هیچ داده‌ای جمع‌آوری یا ارسال نمی‌شود
 - **ردیابی محلی**: آمار ترافیک فقط به صورت محلی ذخیره شده و هرگز ارسال نمی‌شود
