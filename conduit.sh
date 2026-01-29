@@ -3794,14 +3794,28 @@ health_check() {
             echo -e "${YELLOW}N/A${NC}"
         fi
 
+        # Single docker logs call for network + stats checks
+        local hc_logs=$(docker logs --tail 100 "$cname" 2>&1)
+        local hc_stats_lines=$(echo "$hc_logs" | grep "\[STATS\]")
+        local hc_stats_count=$(echo "$hc_stats_lines" | grep -c "\[STATS\]" 2>/dev/null || echo 0)
+        local hc_last_stat=$(echo "$hc_stats_lines" | tail -1)
+        local hc_connected=$(echo "$hc_last_stat" | sed -n 's/.*Connected:[[:space:]]*\([0-9]*\).*/\1/p')
+        hc_connected=${hc_connected:-0}
+        local hc_connecting=$(echo "$hc_last_stat" | sed -n 's/.*Connecting:[[:space:]]*\([0-9]*\).*/\1/p')
+        hc_connecting=${hc_connecting:-0}
+
         echo -n "Network connection:   "
-        local conn_count=$(docker logs --tail 50 "$cname" 2>&1 | grep "\[STATS\]" | tail -1 | sed -n 's/.*Connected:[[:space:]]*\([0-9]*\).*/\1/p')
-        conn_count=${conn_count:-0}
-        if [ "$conn_count" -gt 0 ]; then
-            echo -e "${GREEN}OK${NC} (${conn_count} peers connected)"
+        if [ "$hc_connected" -gt 0 ]; then
+            echo -e "${GREEN}OK${NC} (${hc_connected} peers connected, ${hc_connecting} connecting)"
+        elif [ "$hc_stats_count" -gt 0 ]; then
+            if [ "$hc_connecting" -gt 0 ]; then
+                echo -e "${GREEN}OK${NC} (Connected, ${hc_connecting} peers connecting)"
+            else
+                echo -e "${GREEN}OK${NC} (Connected, awaiting peers)"
+            fi
         else
-            local stats_exist=$(docker logs --tail 50 "$cname" 2>&1 | grep -c "\[STATS\]" || true)
-            if [ "$stats_exist" -gt 0 ]; then
+            local info_lines=$(echo "$hc_logs" | grep -c "\[INFO\]" 2>/dev/null || echo 0)
+            if [ "$info_lines" -gt 0 ]; then
                 echo -e "${YELLOW}CONNECTING${NC} - Establishing connection..."
             else
                 echo -e "${YELLOW}WAITING${NC} - Starting up..."
@@ -3809,9 +3823,8 @@ health_check() {
         fi
 
         echo -n "Stats output:         "
-        local stats_count=$(docker logs --tail 100 "$cname" 2>&1 | grep -c "\[STATS\]" || true)
-        if [ "$stats_count" -gt 0 ]; then
-            echo -e "${GREEN}OK${NC} (${stats_count} entries)"
+        if [ "$hc_stats_count" -gt 0 ]; then
+            echo -e "${GREEN}OK${NC} (${hc_stats_count} entries)"
         else
             echo -e "${YELLOW}NONE${NC} - Run 'conduit restart' to enable"
         fi
