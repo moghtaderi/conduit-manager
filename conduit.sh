@@ -16,7 +16,7 @@
 # Usage:
 # curl -sL https://raw.githubusercontent.com/SamNet-dev/conduit-manager/main/conduit.sh | sudo bash
 #
-# Reference: https://github.com/ssmirr/conduit/releases/latest
+# Reference: https://github.com/ssmirr/conduit/releases/tag/2fd31d4
 # Conduit CLI options:
 #   -m, --max-clients int   maximum number of proxy clients (1-1000) (default 200)
 #   -b, --bandwidth float   bandwidth limit per peer in Mbps (1-40, or -1 for unlimited) (default 5)
@@ -32,7 +32,8 @@ if [ -z "$BASH_VERSION" ]; then
 fi
 
 VERSION="1.1"
-CONDUIT_IMAGE="ghcr.io/ssmirr/conduit/conduit:latest"
+CONDUIT_IMAGE="ghcr.io/ssmirr/conduit/conduit:2fd31d4"
+CONDUIT_IMAGE_DIGEST="sha256:ee456f56751683afd8c1c85ecbeb8bd8871c1b8f9f5057ab1951a60c31c30a7f"
 INSTALL_DIR="${INSTALL_DIR:-/opt/conduit}"
 BACKUP_DIR="$INSTALL_DIR/backups"
 FORCE_REINSTALL=false
@@ -620,6 +621,32 @@ check_and_offer_backup_restore() {
     fi
 }
 
+# Verify Docker image digest matches expected value (security check)
+verify_image_digest() {
+    local expected="$1"
+    local image="$2"
+
+    log_info "Verifying image integrity..."
+
+    local actual=$(docker inspect --format='{{index .RepoDigests 0}}' "$image" 2>/dev/null | grep -o 'sha256:[a-f0-9]*')
+
+    if [ -z "$actual" ]; then
+        log_warn "Could not verify image digest (image may not have RepoDigests)"
+        return 0
+    fi
+
+    if [ "$actual" != "$expected" ]; then
+        log_error "Image digest mismatch!"
+        log_error "  Expected: $expected"
+        log_error "  Got:      $actual"
+        log_error "This could indicate a compromised image. Aborting."
+        return 1
+    fi
+
+    log_success "Image digest verified: ${actual:0:20}..."
+    return 0
+}
+
 run_conduit() {
     local count=${CONTAINER_COUNT:-1}
     log_info "Starting Conduit ($count container(s))..."
@@ -627,6 +654,11 @@ run_conduit() {
     log_info "Pulling Conduit image ($CONDUIT_IMAGE)..."
     if ! docker pull "$CONDUIT_IMAGE"; then
         log_error "Failed to pull Conduit image. Check your internet connection."
+        exit 1
+    fi
+
+    # Verify image integrity using SHA256 digest
+    if ! verify_image_digest "$CONDUIT_IMAGE_DIGEST" "$CONDUIT_IMAGE"; then
         exit 1
     fi
 
@@ -803,13 +835,14 @@ create_management_script() {
 #!/bin/bash
 #
 # Psiphon Conduit Manager
-# Reference: https://github.com/ssmirr/conduit/releases/latest
+# Reference: https://github.com/ssmirr/conduit/releases/tag/2fd31d4
 #
 
 VERSION="1.1"
 INSTALL_DIR="REPLACE_ME_INSTALL_DIR"
 BACKUP_DIR="$INSTALL_DIR/backups"
-CONDUIT_IMAGE="ghcr.io/ssmirr/conduit/conduit:latest"
+CONDUIT_IMAGE="ghcr.io/ssmirr/conduit/conduit:2fd31d4"
+CONDUIT_IMAGE_DIGEST="sha256:ee456f56751683afd8c1c85ecbeb8bd8871c1b8f9f5057ab1951a60c31c30a7f"
 
 # Colors
 RED='\033[0;31m'
@@ -937,6 +970,32 @@ run_conduit_container() {
         --network host \
         "$CONDUIT_IMAGE" \
         start --max-clients "$mc" --bandwidth "$bw" --stats-file
+}
+
+# Verify Docker image digest matches expected value (security check)
+verify_image_digest() {
+    local expected="$1"
+    local image="$2"
+
+    echo "Verifying image integrity..."
+
+    local actual=$(docker inspect --format='{{index .RepoDigests 0}}' "$image" 2>/dev/null | grep -o 'sha256:[a-f0-9]*')
+
+    if [ -z "$actual" ]; then
+        echo -e "${YELLOW}[!] Could not verify image digest${NC}"
+        return 0
+    fi
+
+    if [ "$actual" != "$expected" ]; then
+        echo -e "${RED}[✗] Image digest mismatch!${NC}"
+        echo -e "${RED}    Expected: $expected${NC}"
+        echo -e "${RED}    Got:      $actual${NC}"
+        echo -e "${RED}    This could indicate a compromised image. Aborting.${NC}"
+        return 1
+    fi
+
+    echo -e "${GREEN}[✓] Image digest verified: ${actual:0:20}...${NC}"
+    return 0
 }
 
 print_header() {
@@ -4076,6 +4135,10 @@ update_conduit() {
         return 1
     fi
 
+    # Verify image integrity
+    if ! verify_image_digest "$CONDUIT_IMAGE_DIGEST" "$CONDUIT_IMAGE"; then
+        return 1
+    fi
 
     echo ""
     echo "Recreating container(s) with updated image..."
