@@ -3865,26 +3865,31 @@ health_check() {
 
         # Single docker logs call for network + stats checks
         local hc_logs=$(docker logs --tail 100 "$cname" 2>&1)
-        local hc_stats_lines=$(echo "$hc_logs" | grep "\[STATS\]")
-        local hc_stats_count=$(echo "$hc_stats_lines" | grep -c "\[STATS\]" 2>/dev/null || echo 0)
+        local hc_stats_lines=$(echo "$hc_logs" | grep "\[STATS\]" || true)
+        local hc_stats_count=0
+        if [ -n "$hc_stats_lines" ]; then
+            hc_stats_count=$(echo "$hc_stats_lines" | wc -l | tr -d ' ')
+        fi
+        hc_stats_count=${hc_stats_count:-0}
         local hc_last_stat=$(echo "$hc_stats_lines" | tail -1)
-        local hc_connected=$(echo "$hc_last_stat" | sed -n 's/.*Connected:[[:space:]]*\([0-9]*\).*/\1/p')
+        local hc_connected=$(echo "$hc_last_stat" | sed -n 's/.*Connected:[[:space:]]*\([0-9]*\).*/\1/p' | head -1 | tr -d '\n')
         hc_connected=${hc_connected:-0}
-        local hc_connecting=$(echo "$hc_last_stat" | sed -n 's/.*Connecting:[[:space:]]*\([0-9]*\).*/\1/p')
+        local hc_connecting=$(echo "$hc_last_stat" | sed -n 's/.*Connecting:[[:space:]]*\([0-9]*\).*/\1/p' | head -1 | tr -d '\n')
         hc_connecting=${hc_connecting:-0}
 
         echo -n "Network connection:   "
-        if [ "$hc_connected" -gt 0 ]; then
+        if [ "$hc_connected" -gt 0 ] 2>/dev/null; then
             echo -e "${GREEN}OK${NC} (${hc_connected} peers connected, ${hc_connecting} connecting)"
-        elif [ "$hc_stats_count" -gt 0 ]; then
-            if [ "$hc_connecting" -gt 0 ]; then
+        elif [ "$hc_stats_count" -gt 0 ] 2>/dev/null; then
+            if [ "$hc_connecting" -gt 0 ] 2>/dev/null; then
                 echo -e "${GREEN}OK${NC} (Connected, ${hc_connecting} peers connecting)"
             else
                 echo -e "${GREEN}OK${NC} (Connected, awaiting peers)"
             fi
         else
             local info_lines=$(echo "$hc_logs" | grep -c "\[INFO\]" 2>/dev/null || echo 0)
-            if [ "$info_lines" -gt 0 ]; then
+            info_lines=${info_lines:-0}
+            if [ "$info_lines" -gt 0 ] 2>/dev/null; then
                 echo -e "${YELLOW}CONNECTING${NC} - Establishing connection..."
             else
                 echo -e "${YELLOW}WAITING${NC} - Starting up..."
@@ -3892,7 +3897,7 @@ health_check() {
         fi
 
         echo -n "Stats output:         "
-        if [ "$hc_stats_count" -gt 0 ]; then
+        if [ "$hc_stats_count" -gt 0 ] 2>/dev/null; then
             echo -e "${GREEN}OK${NC} (${hc_stats_count} entries)"
         else
             echo -e "${YELLOW}NONE${NC} - Run 'conduit restart' to enable"
